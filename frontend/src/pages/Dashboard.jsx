@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Navbar from "../components/Navbar";
 function Dashboard() {
   const [rooms, setRooms] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -20,9 +21,6 @@ function Dashboard() {
   await axios.get(
     "http://localhost:5000/api/bookings"
   );
-
-  console.log(roomRes.data);
-  console.log(bookingRes.data);
 
   setRooms(roomRes.data);
 
@@ -54,15 +52,37 @@ room => !room.isBooked
 const totalBookings =
 bookings.length;
 
+const logout = () => {
+
+  localStorage.removeItem(
+    "token"
+  );
+
+  localStorage.removeItem(
+    "user"
+  );
+
+  window.location.href =
+  "/login";
+
+};
+
   return (
 
   <div>
+    <Navbar />
 
     <h1>Dashboard</h1>
 
     <h2>
       Welcome {user?.name}
     </h2>
+
+    <button
+onClick={logout}
+>
+Logout
+</button>
 
     <hr />
 

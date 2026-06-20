@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Navbar from "../components/Navbar";
 
 function Rooms() {
 
@@ -167,6 +168,7 @@ const updateRoom = async () => {
 
   return (
     <div>
+      <Navbar />
 
       <h1>Add Room</h1>
 

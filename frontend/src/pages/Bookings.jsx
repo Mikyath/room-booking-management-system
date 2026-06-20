@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Navbar from "../components/Navbar";
 
 function Bookings() {
 
@@ -45,6 +46,7 @@ function Bookings() {
   return (
 
     <div>
+      <Navbar />
 
       <h1>Booking History</h1>
 

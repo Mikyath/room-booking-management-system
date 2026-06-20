@@ -2,31 +2,49 @@ import { Link } from "react-router-dom";
 
 function Navbar() {
 
+  const logout = () => {
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    window.location.href = "/login";
+
+  };
+
   return (
-    <nav style={{
-      padding: "10px",
-      background: "#333",
-      color: "white"
-    }}>
 
-      <Link to="/" style={{color:"white",marginRight:"15px"}}>
-        Home
-      </Link>
+    <div>
 
-      <Link to="/dashboard" style={{color:"white",marginRight:"15px"}}>
+      <Link to="/dashboard">
         Dashboard
       </Link>
 
-      <Link to="/rooms" style={{color:"white",marginRight:"15px"}}>
+      {" | "}
+
+      <Link to="/rooms">
         Rooms
       </Link>
 
-      <Link to="/bookings" style={{color:"white"}}>
+      {" | "}
+
+      <Link to="/bookings">
         Bookings
       </Link>
 
-    </nav>
+      {" | "}
+
+      <button
+      onClick={logout}
+      >
+        Logout
+      </button>
+
+      <hr />
+
+    </div>
+
   );
+
 }
 
 export default Navbar;
