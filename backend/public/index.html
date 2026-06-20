@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room Booking System</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fb; color: #1f2937; }
+    main { max-width: 900px; margin: 0 auto; padding: 24px; }
+    .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    form { display: grid; gap: 12px; }
+    label { display: grid; gap: 6px; font-weight: 600; }
+    input, select, button { font: inherit; padding: 10px 12px; border-radius: 8px; border: 1px solid #d1d5db; }
+    button { background: #2563eb; color: white; border: none; cursor: pointer; }
+    button:hover { background: #1d4ed8; }
+    ul { padding-left: 20px; }
+    .status { margin-top: 8px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <h1>Room Booking System</h1>
+      <p>Reserve a room for your next meeting.</p>
+      <form id="bookingForm">
+        <label>
+          Guest name
+          <input name="guestName" required />
+        </label>
+        <label>
+          Room
+          <select name="roomName" id="roomSelect" required></select>
+        </label>
+        <label>
+          Date
+          <input type="date" name="date" required />
+        </label>
+        <label>
+          Start time
+          <input type="time" name="startTime" required />
+        </label>
+        <label>
+          End time
+          <input type="time" name="endTime" required />
+        </label>
+        <button type="submit">Book room</button>
+      </form>
+      <div id="status" class="status"></div>
+    </section>
+
+    <section class="card">
+      <h2>Current bookings</h2>
+      <ul id="bookingList"></ul>
+    </section>
+  </main>
+
+  <script>
+    const roomSelect = document.getElementById('roomSelect');
+    const bookingForm = document.getElementById('bookingForm');
+    const bookingList = document.getElementById('bookingList');
+    const status = document.getElementById('status');
+
+    async function loadRooms() {
+      const response = await fetch('/api/rooms');
+      const data = await response.json();
+      roomSelect.innerHTML = data.rooms.map((room) => `<option value="${room.name}">${room.name} (${room.capacity} seats)</option>`).join('');
+    }
+
+    async function loadBookings() {
+      const response = await fetch('/api/bookings');
+      const data = await response.json();
+      bookingList.innerHTML = data.bookings.length
+        ? data.bookings.map((booking) => `<li>${booking.guestName} booked ${booking.roomName} on ${booking.date} from ${booking.startTime} to ${booking.endTime}</li>`).join('')
+        : '<li>No bookings yet.</li>';
+    }
+
+    bookingForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(bookingForm);
+      const payload = Object.fromEntries(formData.entries());
+
+      status.textContent = 'Creating booking...';
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        status.textContent = result.error || 'Booking failed';
+        return;
+      }
+
+      status.textContent = `Booked successfully for ${result.booking.guestName}`;
+      bookingForm.reset();
+      await loadBookings();
+    });
+
+    loadRooms();
+    loadBookings();
+  </script>
+</body>
+</html>
