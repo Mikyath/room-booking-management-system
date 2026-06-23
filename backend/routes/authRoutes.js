@@ -10,7 +10,12 @@ router.post("/register", async (req,res)=>{
 
     try{
 
-        const {name,email,password} = req.body;
+        const {
+  name,
+  email,
+  phone,
+  password
+} = req.body;
 
         const userExists =
         await User.findOne({email});
@@ -29,11 +34,12 @@ router.post("/register", async (req,res)=>{
         const user =
         await User.create({
 
-            name,
-            email,
-            password:hashedPassword
+        name,
+        email,
+        phone,
+        password: hashedPassword
 
-        });
+});
 
         res.status(201).json(user);
 
@@ -97,7 +103,8 @@ token,
 user:{
 id:user._id,
 name:user.name,
-email:user.email
+email:user.email,
+role:user.role
 }
 
 });
@@ -109,6 +116,25 @@ catch(error){
 res.status(500).json(error);
 
 }
+
+});
+
+router.get("/users", async (req, res) => {
+
+  try {
+
+    const users =
+    await User.find();
+
+    res.json(users);
+
+  }
+
+  catch(error){
+
+    res.status(500).json(error);
+
+  }
 
 });
 

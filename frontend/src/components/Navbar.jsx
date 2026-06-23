@@ -7,7 +7,7 @@ function Navbar() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
-    window.location.href = "/login";
+    window.location.href = "/";
 
   };
 
@@ -33,9 +33,7 @@ function Navbar() {
 
       {" | "}
 
-      <button
-      onClick={logout}
-      >
+      <button onClick={logout}>
         Logout
       </button>
 

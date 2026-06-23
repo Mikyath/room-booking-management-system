@@ -4,53 +4,78 @@ import Navbar from "../components/Navbar";
 
 function Bookings() {
 
+  const user = JSON.parse(
+    localStorage.getItem("user") || "null"
+  );
+
   const [bookings, setBookings] = useState([]);
 
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
   const fetchBookings = async () => {
+    try {
 
-    const res = await axios.get(
-      "http://localhost:5000/api/bookings"
-    );
+      const res = await axios.get(
+        "http://localhost:5000/api/bookings"
+      );
 
-    setBookings(res.data);
+      setBookings(res.data);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
+
+  const cancelBooking = async (id) => {
+
+    try {
+
+      await axios.delete(
+        `http://localhost:5000/api/bookings/${id}`
+      );
+
+      alert("Booking Cancelled");
+
+      fetchBookings();
+
+    } catch (error) {
+
+      alert("Cancel Failed");
+
+    }
 
   };
 
-  useEffect(() => {
+  if (!user) {
 
-    fetchBookings();
-
-  }, []);
-
-  
-  const cancelBooking = async (id) => {
-
-  try {
-
-    await axios.delete(
-      `http://localhost:5000/api/bookings/${id}`
+    return (
+      <div>
+        <Navbar />
+        <h2>Please Login First</h2>
+      </div>
     );
-
-    fetchBookings();
-
-    alert("Booking Cancelled");
-
-  } catch (error) {
-
-    alert("Cancel Failed");
 
   }
 
-};
-
   return (
 
-    <div>
+    <div className="p-6">
+
       <Navbar />
 
-      <h1>Booking History</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Booking History
+      </h1>
 
-      <table border="1" cellPadding="10">
+      <table
+        border="1"
+        cellPadding="10"
+        className="w-full bg-white"
+      >
 
         <thead>
 
@@ -58,8 +83,12 @@ function Bookings() {
 
             <th>User</th>
             <th>Room Number</th>
-            <th>Date</th>
-<th>Action</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+            <th>Total Amount</th>
+            <th>Payment Method</th>
+            <th>Booking Date</th>
+            <th>Action</th>
 
           </tr>
 
@@ -67,31 +96,89 @@ function Bookings() {
 
         <tbody>
 
-          {bookings.map((booking) => (
+          {bookings
 
-            <tr key={booking._id}>
+            .filter((booking) => {
 
-              <td>{booking.userName}</td>
-              <td>{booking.roomNumber}</td>
-              <td>
-  {new Date(
-    booking.bookingDate
-  ).toLocaleDateString()}
-</td>
+              if (user.role === "admin") {
+                return true;
+              }
 
-<td>
-  <button
-    onClick={() =>
-      cancelBooking(booking._id)
-    }
-  >
-    Cancel
-  </button>
-</td>
+              return (
+                booking?.userEmail &&
+                booking.userEmail === user?.email
+              );
 
-            </tr>
+            })
 
-          ))}
+            .map((booking) => (
+
+              <tr key={booking._id}>
+
+                <td>{booking.userName}</td>
+
+                <td>{booking.roomNumber}</td>
+
+                <td>
+                  {
+                    booking.checkInDate
+                      ? new Date(
+                          booking.checkInDate
+                        ).toLocaleDateString()
+                      : "-"
+                  }
+                </td>
+
+                <td>
+                  {
+                    booking.checkOutDate
+                      ? new Date(
+                          booking.checkOutDate
+                        ).toLocaleDateString()
+                      : "-"
+                  }
+                </td>
+
+                <td>
+                  ₹{booking.totalAmount || 0}
+                </td>
+
+                <td>
+                  {booking.paymentMethod || "Cash"}
+                </td>
+
+                <td>
+                  {
+                    booking.bookingDate
+                      ? new Date(
+                          booking.bookingDate
+                        ).toLocaleDateString()
+                      : "-"
+                  }
+                </td>
+
+                <td>
+
+                  {(user.role === "admin" ||
+                    booking.userEmail === user.email) && (
+
+                    <button
+                      onClick={() =>
+                        cancelBooking(
+                          booking._id
+                        )
+                      }
+                    >
+                      Cancel
+                    </button>
+
+                  )}
+
+                </td>
+
+              </tr>
+
+            ))}
 
         </tbody>
 

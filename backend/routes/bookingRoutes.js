@@ -8,34 +8,111 @@ require("../models/Room");
 
 const router = express.Router();
 
+router.post(
+  "/check-availability",
+  async (req, res) => {
+
+    try {
+
+      const {
+        roomId,
+        checkInDate,
+        checkOutDate
+      } = req.body;
+
+      const conflictBooking =
+      await Booking.findOne({
+
+        roomId,
+
+        checkInDate: {
+          $lt: new Date(checkOutDate)
+        },
+
+        checkOutDate: {
+          $gt: new Date(checkInDate)
+        }
+
+      });
+
+      res.json({
+        available: !conflictBooking
+      });
+
+    }
+
+    catch(error){
+
+      res.status(500).json(error);
+
+    }
+
+  }
+);
+
 router.post("/add", async (req,res)=>{
 
   try{
 
     const room =
-await Room.findOne({
-roomNumber:req.body.roomNumber
-});
+    await Room.findOne({
+      roomNumber:req.body.roomNumber
+    });
 
-if(room.isBooked){
+    if(!room){
 
-return res.status(400).json({
-message:"Room Already Booked"
-});
+      return res.status(404).json({
+        message:"Room Not Found"
+      });
 
-}
+    }
 
-const booking =
-await Booking.create(req.body);
+    const conflictBooking =
+    await Booking.findOne({
 
-room.isBooked = true;
+      roomId: room._id,
 
-await room.save();
+      checkInDate: {
+        $lt: new Date(
+          req.body.checkOutDate
+        )
+      },
 
-res.status(201).json(booking);
+      checkOutDate: {
+        $gt: new Date(
+          req.body.checkInDate
+        )
+      }
+
+    });
+
+    if(conflictBooking){
+
+      return res.status(400).json({
+        message:
+        "Room already booked for selected dates"
+      });
+
+    }
+
+    const booking =
+    await Booking.create({
+
+      ...req.body,
+
+      roomId: room._id
+
+    });
+
+    res.status(201).json(
+      booking
+    );
+
   }
 
   catch(error){
+
+    console.log(error);
 
     res.status(500).json(error);
 
@@ -76,22 +153,6 @@ router.delete("/:id", async (req,res)=>{
       return res.status(404).json({
         message:"Booking Not Found"
       });
-
-    }
-
-    const room =
-    await Room.findOne({
-
-      roomNumber:
-      booking.roomNumber
-
-    });
-
-    if(room){
-
-      room.isBooked = false;
-
-      await room.save();
 
     }
 

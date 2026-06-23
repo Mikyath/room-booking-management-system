@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
-function Dashboard() {
+  function Dashboard() {
   const [rooms, setRooms] = useState([]);
   const [bookings, setBookings] = useState([]);
-
+  const [users, setUsers] = useState([]);
   const user =
   JSON.parse(
     localStorage.getItem("user")
@@ -22,6 +22,12 @@ function Dashboard() {
     "http://localhost:5000/api/bookings"
   );
 
+  const userRes =
+  await axios.get(
+  "http://localhost:5000/api/auth/users"
+);
+
+  setUsers(userRes.data);
   setRooms(roomRes.data);
 
   setBookings(bookingRes.data);
@@ -39,18 +45,18 @@ useEffect(() => {
 const totalRooms =
 rooms.length;
 
-const bookedRooms =
-rooms.filter(
-room => room.isBooked
-).length;
-
-const availableRooms =
-rooms.filter(
-room => !room.isBooked
-).length;
-
 const totalBookings =
 bookings.length;
+
+const totalRevenue =
+bookings.reduce(
+  (sum, booking) =>
+    sum + booking.totalAmount,
+  0
+);
+
+const totalUsers =
+users.length;
 
 const logout = () => {
 
@@ -72,7 +78,9 @@ const logout = () => {
   <div>
     <Navbar />
 
-    <h1>Dashboard</h1>
+    <h1 className="text-4xl font-bold text-center mt-4">
+  Hotel Management Dashboard
+</h1>
 
     <h2>
       Welcome {user?.name}
@@ -86,21 +94,108 @@ Logout
 
     <hr />
 
-    <h3>
-      Total Rooms: {totalRooms}
-    </h3>
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
 
-    <h3>
-      Available Rooms: {availableRooms}
-    </h3>
+  <div className="bg-blue-500 text-white p-6 rounded-xl">
+    <h2 className="text-3xl font-bold">
+      {totalRooms}
+    </h2>
+    <p>Total Rooms</p>
+  </div>
 
-    <h3>
-      Booked Rooms: {bookedRooms}
-    </h3>
+  <div className="bg-green-500 text-white p-6 rounded-xl">
+    <h2 className="text-3xl font-bold">
+      {totalBookings}
+    </h2>
+    <p>Total Bookings</p>
+  </div>
 
-    <h3>
-      Total Bookings: {totalBookings}
-    </h3>
+  <div className="bg-purple-500 text-white p-6 rounded-xl">
+    <h2 className="text-3xl font-bold">
+      ₹{totalRevenue}
+    </h2>
+    <p>Total Revenue</p>
+  </div>
+
+  <div className="bg-orange-500 text-white p-6 rounded-xl">
+
+    <h2 className="text-2xl font-bold mt-8 mb-4">
+  Recent Bookings
+</h2>
+
+<table className="w-full bg-white shadow rounded">
+
+  <thead>
+
+    <tr className="bg-gray-200">
+
+      <th className="p-3">User</th>
+      <th className="p-3">Room</th>
+      <th className="p-3">Check In</th>
+      <th className="p-3">Check Out</th>
+      <th className="p-3">Amount</th>
+
+    </tr>
+
+  </thead>
+
+  <tbody>
+
+    {
+      bookings
+      .slice()
+      .reverse()
+      .slice(0, 5)
+      .map((booking) => (
+
+        <tr
+          key={booking._id}
+          className="border-b"
+        >
+
+          <td className="p-3">
+            {booking.userName}
+          </td>
+
+          <td className="p-3">
+            {booking.roomNumber}
+          </td>
+
+          <td className="p-3">
+            {
+              new Date(
+                booking.checkInDate
+              ).toLocaleDateString()
+            }
+          </td>
+
+          <td className="p-3">
+            {
+              new Date(
+                booking.checkOutDate
+              ).toLocaleDateString()
+            }
+          </td>
+
+          <td className="p-3">
+            ₹{booking.totalAmount}
+          </td>
+
+        </tr>
+
+      ))
+    }
+
+  </tbody>
+
+</table>
+  <h2 className="text-3xl font-bold">
+    {totalUsers}
+  </h2>
+  <p>Total Users</p>
+</div>
+
+</div>
 
   </div>
 

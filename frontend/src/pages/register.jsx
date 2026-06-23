@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 function Register() {
 
@@ -70,6 +71,18 @@ onClick={registerUser}
 >
 Register
 </button>
+<p className="text-center mt-4">
+
+  Already have an account?
+
+  <Link
+    to="/"
+    className="text-blue-600 ml-2 font-semibold"
+  >
+    Login
+  </Link>
+
+</p>
 
 </div>
 

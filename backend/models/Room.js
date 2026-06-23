@@ -18,14 +18,19 @@ const RoomSchema = new mongoose.Schema({
   },
 
   price: {
-  type: Number,
-  required: true
+    type: Number,
+    required: true
+  },
+
+ images: {
+  type: [String],
+  default: []
 },
 
-isBooked: {
-  type: Boolean,
-  default: false
-}
+  isBooked: {
+    type: Boolean,
+    default: false
+  }
 });
 
 module.exports = mongoose.model(

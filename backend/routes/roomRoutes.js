@@ -1,24 +1,69 @@
 const express = require("express");
-
+const multer = require("multer");
 const Room = require("../models/Room");
-
 const router = express.Router();
+const storage = multer.diskStorage({
 
-router.post("/add", async (req, res) => {
+  destination: (req, file, cb) => {
 
-  try {
+    cb(null, "uploads/");
 
-    const room = await Room.create(req.body);
+  },
 
-    res.status(201).json(room);
+  filename: (req, file, cb) => {
 
-  } catch (error) {
-
-    res.status(500).json(error);
+    cb(
+      null,
+      Date.now() +
+      "-" +
+      file.originalname
+    );
 
   }
 
 });
+
+const upload = multer({storage});
+
+router.post("/add",
+upload.array("images", 10),
+  async (req, res) => {
+
+    try {
+
+      const room = await Room.create({
+
+        roomNumber:
+          req.body.roomNumber,
+
+        roomType:
+          req.body.roomType,
+
+        capacity:
+          req.body.capacity,
+
+        price:
+          req.body.price,
+
+        images:
+          req.files
+            ? req.files.map((file) => `/uploads/${file.filename}`)
+            : []
+
+      });
+
+      res.status(201).json(room);
+
+    }
+
+    catch (error) {
+
+      res.status(500).json(error);
+
+    }
+
+  }
+);
 
 router.get("/", async (req, res) => {
 
