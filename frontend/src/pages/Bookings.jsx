@@ -18,7 +18,7 @@ function Bookings() {
     try {
 
       const res = await axios.get(
-        "http://localhost:5000/api/bookings"
+        "https://hotel-management-system-ebhf.onrender.com/api/bookings"
       );
 
       setBookings(res.data);
@@ -35,7 +35,7 @@ function Bookings() {
     try {
 
       await axios.delete(
-        `http://localhost:5000/api/bookings/${id}`
+        `https://hotel-management-system-ebhf.onrender.com/api/bookings/${id}`
       );
 
       alert("Booking Cancelled");

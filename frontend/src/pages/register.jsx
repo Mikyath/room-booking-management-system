@@ -13,7 +13,7 @@ const registerUser = async () => {
 try{
 
 await axios.post(
-"http://localhost:5000/api/auth/register",
+"https://hotel-management-system-ebhf.onrender.com/api/auth/register",
 {
 name,
 email,

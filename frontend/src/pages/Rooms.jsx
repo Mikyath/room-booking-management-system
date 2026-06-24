@@ -23,7 +23,7 @@ function Rooms() {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [currentImage, setCurrentImage] = useState({});
   const [availability, setAvailability] = useState({});
-  const fetchRooms = async () => {
+
   const checkAvailability = async (
   roomId,
   checkIn,
@@ -35,7 +35,7 @@ function Rooms() {
   try {
 
     const res = await axios.post(
-      "http://localhost:5000/api/bookings/check-availability",
+      "https://hotel-management-system-ebhf.onrender.com/api/bookings/check-availability",
       {
         roomId,
         checkInDate: checkIn,
@@ -58,10 +58,12 @@ function Rooms() {
 
 };
 
+  const fetchRooms = async () => {
+  
     try {
 
       const res = await axios.get(
-        "http://localhost:5000/api/rooms"
+        "https://hotel-management-system-ebhf.onrender.com/api/rooms"
       );
 
       setRooms(res.data);
@@ -101,7 +103,7 @@ console.log(images);
 console.log(images.length);
 
 await axios.post(
-  "http://localhost:5000/api/rooms/add",
+  "https://hotel-management-system-ebhf.onrender.com/api/rooms/add",
   formData,
   {
     headers: {
@@ -134,7 +136,7 @@ setImages(null);
     try {
 
       await axios.delete(
-        `http://localhost:5000/api/rooms/${id}`
+        `https://hotel-management-system-ebhf.onrender.com/api/rooms/${id}`
       );
 
       fetchRooms();
@@ -179,7 +181,7 @@ setImages(null);
 
       await axios.put(
 
-        `http://localhost:5000/api/rooms/${editingRoom._id}`,
+        `https://hotel-management-system-ebhf.onrender.com/api/rooms/${editingRoom._id}`,
 
         {
           roomNumber,
@@ -253,7 +255,7 @@ setImages(null);
 
       await axios.post(
 
-  "http://localhost:5000/api/bookings/add",
+  "https://hotel-management-system-ebhf.onrender.com/api/bookings/add",
 
   {
 
@@ -280,8 +282,10 @@ setImages(null);
 );
       alert(
   `Payment Successful Method: ${paymentMethod}
-   Total Amount: ₹${totalAmount}
-   Room Booked Successfully`
+
+Total Amount: ₹${totalAmount}
+
+Room Booked Successfully`
 );
 
       setSelectedRoom(null);
@@ -491,7 +495,7 @@ setImages(null);
     src={
       room.images &&
       room.images.length > 0
-        ? `http://localhost:5000${
+        ? `https://hotel-management-system-ebhf.onrender.com${
             room.images[
               currentImage[room._id] || 0
             ]
@@ -570,7 +574,7 @@ room.images.length > 1 && (
 
     <img
       key={index}
-      src={`http://localhost:5000${img}`}
+      src={`https://hotel-management-system-ebhf.onrender.com${img}`}
       alt="Room"
       className="w-16 h-16 object-cover rounded"
     />
@@ -601,9 +605,19 @@ room.images.length > 1 && (
             ₹{room.price}
           </p>
 
-         <p className="text-green-600 font-bold">
+         {availability[room._id] === false ? (
+
+<p className="text-red-600 font-bold">
+  Booked for selected dates
+</p>
+
+) : (
+
+<p className="text-green-600 font-bold">
   Available for selected dates
 </p>
+
+)}
 
           <div className="mt-3 flex gap-2 flex-wrap">
 
@@ -655,22 +669,40 @@ room.images.length > 1 && (
             <input
               type="date"
               value={checkInDate}
-              onChange={(e) =>
-                setCheckInDate(
-                  e.target.value
-                )
-              }
+             onChange={(e) => {
+
+  const value =
+    e.target.value;
+
+  setCheckInDate(value);
+
+  checkAvailability(
+    room._id,
+    value,
+    checkOutDate
+  );
+
+}}
               className="border p-2 rounded w-full"
             />
 
             <input
               type="date"
               value={checkOutDate}
-              onChange={(e) =>
-                setCheckOutDate(
-                  e.target.value
-                )
-              }
+              onChange={(e) => {
+
+  const value =
+    e.target.value;
+
+  setCheckOutDate(value);
+
+  checkAvailability(
+    room._id,
+    checkInDate,
+    value
+  );
+
+}}
               className="border p-2 rounded w-full"
             />
 
@@ -697,13 +729,20 @@ room.images.length > 1 && (
 </select>
 
             <button
-              onClick={() =>
-                bookRoom(room)
-              }
-              className="bg-green-600 text-white px-4 py-2 rounded w-full"
-            >
-              Confirm Booking
-            </button>
+  disabled={
+    availability[room._id] === false
+  }
+  onClick={() =>
+    bookRoom(room)
+  }
+  className={`px-4 py-2 rounded w-full text-white ${
+    availability[room._id] === false
+      ? "bg-gray-400"
+      : "bg-green-600"
+  }`}
+>
+  Confirm Booking
+</button>
 
           </div>
 

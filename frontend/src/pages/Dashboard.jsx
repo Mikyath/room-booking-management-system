@@ -14,17 +14,17 @@ import Navbar from "../components/Navbar";
 
   const roomRes =
   await axios.get(
-    "http://localhost:5000/api/rooms"
+    "https://hotel-management-system-ebhf.onrender.com/api/rooms"
   );
 
   const bookingRes =
   await axios.get(
-    "http://localhost:5000/api/bookings"
+    "https://hotel-management-system-ebhf.onrender.com/api/bookings"
   );
 
   const userRes =
   await axios.get(
-  "http://localhost:5000/api/auth/users"
+  "https://hotel-management-system-ebhf.onrender.com/api/auth/users"
 );
 
   setUsers(userRes.data);
